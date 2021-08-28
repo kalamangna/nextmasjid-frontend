@@ -62,14 +62,9 @@
         </div>
 
         <div class="contact__c2a">
-          <div v-if="loading">
-            Loading...
-          </div>
-          <div v-else>
-            <button class="button button--primary" type="submit">
-              {{ $t("pages.contact.form.submit") }}
-            </button>
-          </div>
+          <button class="button button--primary" type="submit">
+            {{ loading ? "جاري المعالجة" : $t("pages.contact.form.submit") }}
+          </button>
         </div>
       </form>
     </div>
@@ -77,11 +72,7 @@
     <div v-if="showMessage">
       <overlay @close="handleCloseMessage">
         <div :class="error ? 'alert alert--error' : 'alert alert--success'">
-          {{
-            error
-              ? `Ups! Submit Failed.`
-              : `Thank you! Your data was submitted.`
-          }}
+          {{ error ? errorMessage : `Thank you! Your data was submitted.` }}
         </div>
       </overlay>
     </div>
@@ -91,8 +82,6 @@
 <script>
 import overlay from "../../components/ui/components/overlay/overlay.vue";
 import axios from "axios";
-// import API from "@/services/api";
-// import { URLS } from "@/services/urls";
 
 export default {
   components: { overlay },
@@ -116,47 +105,32 @@ export default {
         email: "",
         message: ""
       },
-      endpoint: "https://formspree.io/f/xjvjrpvb",
+      endpoint: "https://formspree.io/f/xwkawqea",
       loading: false,
       showMessage: false,
-      error: null
+      error: null,
+      errorMessage: ""
     };
   },
   methods: {
-    async handleSubmit() {
+    handleSubmit() {
       this.loading = true;
 
-      const response = await axios.post(this.endpoint, this.form);
-      let { data } = response;
-
-      if (data.ok) {
-        this.loading = false;
-        this.form.fullName = "";
-        this.form.email = "";
-        this.form.message = "";
-      } else {
-        this.error = true;
-      }
-
-      this.showMessage = true;
-
-      // const fd = new FormData();
-      // fd.append("Name", this.form.fullName);
-      // fd.append("Email", this.form.email);
-      // fd.append("Content", this.form.message);
-
-      // const { CONTACT_URL } = URLS;
-      // const response = await API.post(CONTACT_URL, fd);
-      // let { data } = response;
-      // console.log(data);
-
-      // this.error = true;
-
-      // setTimeout(() => {
-      //   this.showMessage = true;
-      //   this.loading = false;
-      // }, 1000);
-      // }
+      axios
+        .post(this.endpoint, this.form)
+        .then(res => {
+          this.loading = false;
+          this.showMessage = true;
+          this.form.fullName = "";
+          this.form.email = "";
+          this.form.message = "";
+        })
+        .catch(err => {
+          this.loading = false;
+          this.error = true;
+          this.errorMessage = err;
+          this.showMessage = true;
+        });
     },
     handleCloseMessage() {
       this.showMessage = false;
