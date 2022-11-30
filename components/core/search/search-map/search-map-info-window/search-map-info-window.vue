@@ -17,8 +17,8 @@
         <p class="search-info__desc">
           {{ message }}
           <br />
-           {{ content.lat }} خط الطول <br />
-           {{ content.lng }} خط العرض 
+          {{ content.lat }} خط الطول <br />
+          {{ content.lng }} خط العرض
         </p>
       </div>
     </div>
@@ -27,16 +27,33 @@
         <a :href="resultLink" class="button button--primary" target="_blank">
           {{ content.locale.websiteVisit }}
         </a>
-        <button class="button button--outline button--aligned">
+
+        <button
+          class="button button--outline button--aligned"
+          @click="handleShare"
+        >
           <icon size="small" symbol="icon-share"></icon>
           <span>{{ content.locale.share }}</span>
         </button>
       </div>
+
+      <!-- share button -->
+      <div v-show="showShare">
+        <div class="search-info__share--wrapper" @click.self="handleShare" />
+        <div class="search-info__share--content">
+          <social-share :url="resultLink" :content="content" />
+        </div>
+      </div>
+
       <button class="button button--outline button--full">
-        {{ content.locale.share }}
+        {{ content.locale.export }} <br />
+        ({{ content.locale.exportMessage }})
       </button>
+
       <div class="search-info__center">
-        <a href="" class="search-info__link">{{ content.locale.report }}</a>
+        <a href="contact" class="search-info__link">
+          {{ content.locale.report }}
+        </a>
       </div>
     </div>
   </div>
@@ -44,14 +61,23 @@
 
 <script>
 import bemMixin from "@/components/ui/mixins/bem";
+import overlay from "@/components/ui/components/overlay/overlay";
 
 export default {
   name: "search-map-info-window",
   mixins: [bemMixin("search-info__bar")],
   props: {
     content: {
-      type: Object
-    }
+      type: Object,
+    },
+  },
+  components: {
+    overlay,
+  },
+  data() {
+    return {
+      showShare: false,
+    };
   },
   computed: {
     rootClasses() {
@@ -78,10 +104,17 @@ export default {
         return locale.message.ifHigh;
       } else if (value > 50) {
         return locale.message.ifLow;
+      } else if (value === -1) {
+        return locale.message.ifNotGood;
       } else {
         return locale.message.ifNot;
       }
-    }
-  }
+    },
+  },
+  methods: {
+    handleShare() {
+      this.showShare = !this.showShare;
+    },
+  },
 };
 </script>

@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  frontend:
+    image: nextmasjiddocker/nextmasjid-frontend:latest    
+    deploy:
+      replicas: 1
+    restart: always
+    container_name: frontend-container
+    networks:
+      - nextmasjid-network
+            
+  backend:
+    image: nextmasjiddocker/nextmasjid-backend:latest    
+    deploy:
+      replicas: 1
+    restart: always
+    container_name: backend-container
+    networks:
+      - nextmasjid-network
+
+networks:
+  nextmasjid-network:        
+    external:
+      name: nginx-network
+  
